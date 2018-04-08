@@ -1,6 +1,7 @@
 class State {
   constructor() {
     this.stateMachine = undefined;
+    this.data = {};
   }
   isValidNextState(state) {
     return false;

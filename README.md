@@ -1,23 +1,34 @@
-npm install kwstatemachine --save
+# kwstatemachine
 
-in your index.js or main.js:
+## Installation
+
+```
+npm install kwstatemachine --save
+```
+
+## Example
+
+```javascript
+// Import StateMachine and State classes
 var StateMachine = require('kwstatemachine').StateMachine;
 var State = require('kwstatemachine').State;
 
+// Define your States by extending State class
 class GameStart extends State {
+  // Here you define what is a possible next state by returning true
   isValidNextState(state) {
     return state instanceof GamePlay;
   }
+  // This is entry point to State
   onEnter() {
-    console.log("enter game start");
-    this.stateMachine.enter(gamePlay, { value: "ziom" });
+    this.stateMachine.enter(gamePlay, { value: "passed" });
   }
-  onExit() {
-    console.log("exit game start");
-  }
-  onUpdate() {
-    console.log("update game start");
-  }
+  // This will be executed if you attempt and success to
+  // move to next state
+  onExit() {}
+
+  // This can be used to execute tick type loops (e.g.: draw() in p5js)
+  onUpdate() {}
 }
 
 class GamePlay extends State {
@@ -25,39 +36,35 @@ class GamePlay extends State {
     return state instanceof GameEnd;
   }
   onEnter(data) {
-    console.log("enter game play with data: " + data.value);
-    this.stateMachine.enter(gameEnd);
+    this.data = data;
   }
-  onExit() {
-    console.log("exit game play");
-  }
-  onUpdate() {
-    console.log("update game play");
-  }
+  onExit() {}
+  onUpdate() {}
 }
 
 class GameEnd extends State {
-  onEnter() {
-    console.log("enter game end");
-  }
-  onExit() {
-    console.log("exit game end");
-  }
-  onUpdate() {
-    console.log("update game end");
-  }
+  onEnter() {}
+  onExit() {}
+  onUpdate() {}
 }
 
+// Once you got all your States defined, you need
+// to extend StateMachine, you can then add update to run
+// onUpdate() on your active state
 class GameStateMachine extends StateMachine {
   update() {
     this.currentState.onUpdate();
   }
 }
 
+// create states
 var gameStart = new GameStart();
 var gamePlay = new GamePlay();
 var gameEnd = new GameEnd();
+
+// create state machine and add states
 var sm = new GameStateMachine([gameStart, gamePlay, gameEnd]);
 
+// enter initial state
 sm.enter(gameStart);
-
+```

@@ -4,10 +4,10 @@ var State = require("../StateMachine").State;
 
 class GameStart extends State {
   isValidNextState(state) {
-    return state instanceof GamePlay;
+    return (state instanceof GamePlay || state instanceof GameEnd);
   }
-  onEnter() {
-    this.stateMachine.enter(gamePlay, { value: "passed" });
+  onEnter(data) {
+    this.data = data;
   }
   onExit() {}
   onUpdate() {}
@@ -25,6 +25,9 @@ class GamePlay extends State {
 }
 
 class GameEnd extends State {
+  isValidNextState(state) {
+    return state instanceof GameStart;
+  }
   onEnter() {}
   onExit() {}
   onUpdate() {}
@@ -48,7 +51,11 @@ describe("GameStateMachine", function() {
     it("should have 3 states", function() {
       assert.equal(sm.states.length, 3);
     });
+    it("should current state be a gameStart", function() {
+      assert.ok(sm.currentState instanceof GameStart);
+    });
     it("should current state be a gamePlay", function() {
+      sm.enter(gamePlay, { value: "passed" });
       assert.ok(sm.currentState instanceof GamePlay);
     });
     it("should have data object and prop value == 'passed' ", function() {
@@ -62,10 +69,28 @@ describe("GameStateMachine", function() {
       assert.equal(sm.currentState.data.value, undefined);
     });
   });
-  describe("Entering from GameEnd to GameStart", function() {
+  describe("Entering from GameEnd to GamePlay", function() {
     it("should current state remain GameEnd", function() {
-      sm.enter(gameStart);
+      sm.enter(gamePlay);
       assert.ok(sm.currentState instanceof GameEnd);
+    });
+  });
+  describe("Entering next available state from GameEnd", function() {
+    it("should current state be GameStart", function() {
+      sm.enterNext({ dataPassed: "someData" });
+      assert.ok(sm.currentState instanceof GameStart);
+    });
+    it("should have dataPassed: someData", function() {
+      assert.equal(sm.currentState.data.dataPassed, "someData");
+    })
+  });
+  describe("Being now in GameStart", function() {
+    it("should remain in GameStart calling nextState as GameStart has more than one exit", function() {
+      sm.enterNext({ dataPassed: "someData" });
+      assert.ok(sm.currentState instanceof GameStart);
+    });
+    it("should have no dataPassed: someData", function() {
+      assert.notEqual(sm.currentState.data.dataPassed, "someData");
     });
   });
 });

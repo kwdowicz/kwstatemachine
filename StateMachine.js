@@ -27,6 +27,14 @@ class StateMachine {
     this.currentState = nextState;
     nextState.onEnter(data);
   }
+  enterNext(data = {}) {
+    var availableStates = this.states.filter(s => this.currentState.isValidNextState(s))
+    if(availableStates.length == 1) {
+      this.enter(availableStates[0], data)
+    } else {
+      this.currentState.data = {};
+    }
+  }
   update() {}
 }
 

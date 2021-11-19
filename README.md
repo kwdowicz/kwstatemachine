@@ -68,5 +68,4 @@ var sm = new GameStateMachine([gameStart, gamePlay, gameEnd]);
 // enter initial state
 sm.enter(gameStart);
 ```
-
-This is still cool in 2021
+.
